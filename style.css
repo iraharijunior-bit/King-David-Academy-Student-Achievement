@@ -1,0 +1,657 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KING DAVID ACADEMY'S STUDENT ACHIEVEMENT DATABASE</title>
+    <!-- Load Tailwind CSS for professional, mobile-responsive design -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for professional aesthetic */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8FAFC; /* Lighter background */
+            /* Referencing the CSS variable set by JavaScript for background image */
+            background-image: url(var(--bg-image));
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        /* Content wrapper style (The main professional white card) */
+        .content-wrapper {
+            /* Ensures the content is legible over the background image */
+            background-color: rgba(255, 255, 255, 0.95); 
+            padding: 2.5rem;
+            border-radius: 1.5rem;
+            /* Professional, subtle shadow */
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.15);
+        }
+        .achievement-card {
+            /* Standardizing card appearance */
+            background-color: #FFFFFF;
+            border: 1px solid #E5E7EB; 
+            border-radius: 0.75rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 100%; /* Ensure uniform height in the grid row */
+            /* Added custom thick border on the left for quick visual category response */
+            border-left-width: 6px; 
+            border-left-color: #D1D5DB; /* Default light gray */
+        }
+        .achievement-card:hover {
+            transform: translateY(-4px); 
+            box-shadow: 0 10px 20px rgba(79, 70, 229, 0.15); /* Indigo hover shadow */
+        }
+        
+        /* Category specific left border colors (for quick visual response) */
+        .border-academic { border-left-color: #10B981; /* Green */ }
+        .border-sports { border-left-color: #3B82F6; /* Blue */ }
+        .border-arts { border-left-color: #8B5CF6; /* Purple */ }
+        .border-leadership { border-left-color: #F59E0B; /* Amber/Yellow */ }
+        .border-community { border-left-color: #EF4444; /* Red */ }
+    </style>
+</head>
+<body>
+
+<div id="app" class="min-h-screen">
+    <!-- Header: Deep Blue Primary Color -->
+    <header class="bg-blue-900 shadow-xl sticky top-0 z-10">
+        <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+            <div class="flex flex-col">
+                <h1 class="text-3xl font-extrabold text-white tracking-tight">KDA Student Profile Repository</h1>
+                <!-- Summary section below the title -->
+                <div id="achievementSummary" class="text-sm mt-1 space-y-1">
+                    <!-- Content injected here by JS: Total count and latest submission -->
+                    <div class="font-bold text-base text-gray-200">Retrieving Records...</div>
+                </div>
+            </div>
+            <!-- Professional Button Style -->
+            <button id="addAchievementBtn"
+                    class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300 transform hover:scale-105">
+                + Record New Achievement
+            </button>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <!-- Professional White Content Wrapper -->
+        <div class="content-wrapper">
+            <!-- User Info (Hidden by default, shown after auth) -->
+            <p id="userIdDisplay" class="text-xs text-gray-500 mb-6 hidden"></p>
+
+            <!-- Category Filter Section (Centered for simplicity) -->
+            <div class="bg-gray-50 p-4 rounded-xl shadow-inner mb-6 flex justify-center border border-gray-100">
+                <select id="categoryFilter"
+                        class="w-full max-w-sm p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 bg-white transition duration-150">
+                    <option value="All">Filter Profiles by Category (All)</option>
+                    <option value="Academic">Academic</option>
+                    <option value="Sports">Sports</option>
+                    <option value="Arts">Arts & Culture</option>
+                    <option value="Leadership">Leadership</option>
+                    <option value="Community">Community Service</option>
+                </select>
+            </div>
+
+            <!-- Achievement Cards Grid: Easy-to-view layout -->
+            <section id="achievementsGrid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-5"></section>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="hidden text-center py-20">
+                <p class="text-xl text-gray-800 font-medium">No student profiles found matching the criteria.</p>
+                <p class="text-gray-600 mt-2">Try selecting 'All' in the filter or add a new record.</p>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Record Achievement Modal -->
+<div id="achievementModal" class="fixed inset-0 bg-gray-600 bg-opacity-75 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-xl shadow-2xl p-8 w-full max-w-lg m-4">
+        <h2 class="text-2xl font-bold mb-6 text-indigo-700">Record New Achievement</h2>
+
+        <form id="achievementForm" onsubmit="handleFormSubmit(event)">
+            <div class="mb-4">
+                <label for="studentName" class="block text-sm font-medium text-gray-700">Student's Full Name</label>
+                <input type="text" id="studentName" required class="mt-1 block w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
+            </div>
+            <div class="mb-4">
+                <label for="title" class="block text-sm font-medium text-gray-700">Achievement Title/Award</label>
+                <input type="text" id="title" required class="mt-1 block w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
+            </div>
+            <div class="mb-4">
+                <label for="category" class="block text-sm font-medium text-gray-700">Category</label>
+                <select id="category" required class="mt-1 block w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 bg-white">
+                    <option value="Academic">Academic</option>
+                    <option value="Sports">Sports</option>
+                    <option value="Arts">Arts & Culture</option>
+                    <option value="Leadership">Leadership</option>
+                    <option value="Community">Community Service</option>
+                </select>
+            </div>
+            <div class="mb-4">
+                <label for="grade" class="block text-sm font-medium text-gray-700">Grade Level (1-12)</label>
+                <input type="number" id="grade" min="1" max="12" required class="mt-1 block w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
+            </div>
+            <div class="mb-4">
+                <label for="description" class="block text-sm font-medium text-gray-700">Description (Max 200 words)</label>
+                <textarea id="description" rows="3" required class="mt-1 block w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+            </div>
+            <!-- Image Source Path Input -->
+            <div class="mb-4">
+                <label for="imageUrl" class="block text-sm font-medium text-gray-700">Student/Achievement Image Link or Content ID (Optional)</label>
+                <input type="text" id="imageUrl" class="mt-1 block w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="e.g., uploaded:content-id-string or full URL">
+                <p class="text-xs text-gray-500 mt-1">Paste the **Content ID** (the unique string for an uploaded file) or a web URL here. If left empty, a default image will be used.</p>
+            </div>
+
+            <div class="flex justify-end space-x-3 mt-6">
+                <button type="button" onclick="closeModal('achievementModal')"
+                        class="px-4 py-2 text-gray-600 bg-gray-200 rounded-lg hover:bg-gray-300 transition duration-150">
+                    Cancel
+                </button>
+                <button type="submit" id="submitAchievementBtn"
+                        class="px-4 py-2 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition duration-150">
+                    Record Achievement
+                </button>
+            </div>
+        </form>
+
+        <p id="modalMessage" class="mt-4 text-center text-sm hidden"></p>
+    </div>
+</div>
+
+<!-- Student Detail Modal -->
+<div id="studentDetailModal" class="fixed inset-0 bg-gray-600 bg-opacity-75 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-xl shadow-2xl p-8 w-full max-w-2xl m-4">
+        <div class="flex justify-between items-center mb-6 border-b pb-4">
+            <h2 id="studentDetailName" class="text-3xl font-extrabold text-blue-900"></h2>
+            <button type="button" onclick="closeModal('studentDetailModal')"
+                    class="text-gray-500 hover:text-gray-800 transition duration-150">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+
+        <div id="studentDetailContent">
+            <!-- Content will be injected here by JavaScript -->
+        </div>
+
+    </div>
+</div>
+
+<!-- Firebase SDK Imports and Logic -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, collection, query, addDoc, onSnapshot, serverTimestamp, setLogLevel, getDoc, doc, setDoc, deleteDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    setLogLevel('Debug');
+
+    let app;
+    let db;
+    let auth;
+    let currentUserId = null;
+    let allAchievements = [];
+    const achievementsGrid = document.getElementById('achievementsGrid');
+    const userIdDisplay = document.getElementById('userIdDisplay');
+    const emptyState = document.getElementById('emptyState');
+    const categoryFilter = document.getElementById('categoryFilter');
+    const achievementSummary = document.getElementById('achievementSummary');
+
+    // =========================================================================================
+    // CODE FOR IMAGE PATHS - EASILY CHANGE LOCAL ASSET PATHS HERE
+    // =========================================================================================
+    const BACKGROUND_IMAGE_PATH = 'https://images.unsplash.com/photo-1557804506-669a67965ba0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2000&q=80'; 
+    const DEFAULT_STUDENT_IMAGE_PATH = 'https://placehold.co/150x150/9CA3AF/FFFFFF?text=PROFILE';
+    // =========================================================================================
+
+    // =========================================================================================
+    // START: CODE FOR INITIAL STUDENT CARD DATA 
+    // =========================================================================================
+    const SEED_VERSION = 2; 
+
+    const ACHIEVEMENT_RECORDS_TO_LOAD = [
+        {
+            studentName: "Amara Davies",
+            title: "National Math Olympiad Winner",
+            category: "Academic",
+            grade: 10,
+            description: "Secured first place in the highly competitive National Mathematics Olympiad, demonstrating exceptional logical reasoning and problem-solving skills.",
+            imageUrl: "https://placehold.co/150x150/4F46E5/FFFFFF?text=A.D."
+        },
+        {
+            studentName: "Kwame Nkrumah",
+            title: "Varsity Soccer MVP",
+            category: "Sports",
+            grade: 12,
+            description: "Led the varsity soccer team to the regional championship, earning the Most Valuable Player award for his defensive leadership.",
+            // Example of a Content ID for an uploaded picture
+            imageUrl: "uploaded:prime kits now.jpg-92e30575-cd04-4179-8b6d-d78d7e26cd31" 
+        },
+        {
+            studentName: "Chloe Dupont",
+            title: "Statewide Public Speaking Champion",
+            category: "Leadership",
+            grade: 9,
+            description: "Won the state public speaking competition with a powerful address on environmental sustainability.",
+            imageUrl: "" // Will use the DEFAULT_STUDENT_IMAGE_PATH
+        },
+        {
+            studentName: "Ben Carter",
+            title: "Regional Art Exhibition Selection",
+            category: "Arts",
+            grade: 8,
+            description: "His watercolor landscape 'Morning Mist' was selected for display in the prestigious Regional Youth Art Exhibition.",
+            imageUrl: "https://placehold.co/150x150/F59E0B/FFFFFF?text=B.C."
+        }
+    ];
+    // =========================================================================================
+    // END: CODE FOR INITIAL STUDENT CARD DATA
+    // =========================================================================================
+
+
+    // --- Firebase Setup and Authentication ---
+    async function setupFirebase() {
+        try {
+            document.documentElement.style.setProperty('--bg-image', BACKGROUND_IMAGE_PATH);
+
+            const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-kda-app-id';
+            const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+
+            if (Object.keys(firebaseConfig).length === 0) {
+                console.error("Firebase config is missing. Cannot initialize app.");
+                return;
+            }
+
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+
+            const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    currentUserId = user.uid;
+                } else {
+                    if (initialAuthToken) {
+                         await signInWithCustomToken(auth, initialAuthToken);
+                    } else {
+                         await signInAnonymously(auth);
+                    }
+                    currentUserId = auth.currentUser?.uid || crypto.randomUUID(); 
+                }
+                
+                userIdDisplay.textContent = `User ID (App: ${appId}): ${currentUserId}`;
+                userIdDisplay.classList.remove('hidden');
+
+                // Load initial data and start the listener once authenticated
+                await loadInitialData(appId); 
+                startAchievementListener(appId);
+            });
+
+        } catch (error) {
+            console.error("Error setting up Firebase:", error);
+            achievementSummary.innerHTML = '<div class="text-sm text-red-400">Error connecting to database. See console.</div>';
+        }
+    }
+    
+    // --- Initial Data Loader Function ---
+    async function loadInitialData(appId) {
+        const seedCollectionPath = `/artifacts/${appId}/public/data/kda_seed`;
+        const achievementsCollectionPath = `/artifacts/${appId}/public/data/kda_achievements`;
+        
+        const seedRef = doc(db, seedCollectionPath, 'version_control');
+        
+        try {
+            const seedDoc = await getDoc(seedRef);
+            
+            if (!seedDoc.exists() || seedDoc.data().version < SEED_VERSION) {
+                console.log("Database seed missing or outdated. Loading initial data from code...");
+                
+                if (seedDoc.exists() && seedDoc.data().version < SEED_VERSION) {
+                    console.log("Clearing old achievement records...");
+                    const q = query(collection(db, achievementsCollectionPath));
+                    const snapshot = await getDocs(q);
+                    
+                    for (const doc of snapshot.docs) {
+                        await deleteDoc(doc.ref);
+                    }
+                }
+
+                for (const achievement of ACHIEVEMENT_RECORDS_TO_LOAD) {
+                    await addDoc(collection(db, achievementsCollectionPath), {
+                        ...achievement,
+                        timestamp: serverTimestamp(),
+                        userId: 'system_seed_user'
+                    });
+                }
+
+                await setDoc(seedRef, { version: SEED_VERSION, timestamp: serverTimestamp() });
+                console.log(`Initial data load complete. Seed version set to ${SEED_VERSION}.`);
+            } else {
+                console.log(`Database seed version ${SEED_VERSION} already loaded. Skipping initial data load.`);
+            }
+
+        } catch (error) {
+            console.error("Error during initial data loading:", error);
+        }
+    }
+
+
+    // --- Firestore Real-time Listener ---
+    function startAchievementListener(appId) {
+        const collectionPath = `/artifacts/${appId}/public/data/kda_achievements`;
+        const achievementsRef = collection(db, collectionPath);
+
+        const q = query(achievementsRef);
+
+        onSnapshot(q, (snapshot) => {
+            
+            allAchievements = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+
+            // Sort achievements by timestamp (newest first)
+            allAchievements.sort((a, b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
+
+            applyFiltersAndRender();
+        }, (error) => {
+            console.error("Error listening to achievements:", error);
+            achievementSummary.innerHTML = '<div class="text-sm text-red-400">Failed to load real-time data. Please refresh.</div>';
+        });
+    }
+
+    // --- Data Grouping Logic ---
+
+    function groupAchievementsByStudent(achievements) {
+        const studentMap = {};
+        achievements.forEach(ach => {
+            // Group students by name and grade for a unique profile
+            const key = `${ach.studentName.toLowerCase()}-${ach.grade}`;
+
+            if (!studentMap[key]) {
+                studentMap[key] = {
+                    studentName: ach.studentName,
+                    grade: ach.grade,
+                    // Use the image URL from the first (newest) achievement found for the profile card
+                    imageUrl: ach.imageUrl || null, 
+                    achievements: []
+                };
+            }
+            // Add achievement. Since allAchievements is already sorted newest-first,
+            // the newest achievement will be added first for each student profile.
+            studentMap[key].achievements.push(ach);
+        });
+        // Convert map values back to an array
+        const students = Object.values(studentMap);
+        
+        // Secondary sort to ensure students with newer achievements appear first on the grid
+        students.sort((a, b) => (b.achievements[0].timestamp?.seconds || 0) - (a.achievements[0].timestamp?.seconds || 0));
+        
+        return students;
+    }
+    
+    // Helper function to map category to Tailwind CSS class for quick visual response
+    function getCategoryColorClass(category) {
+        const colorMap = {
+            'Academic': 'border-academic',
+            'Sports': 'border-sports',
+            'Arts': 'border-arts',
+            'Leadership': 'border-leadership',
+            'Community': 'border-community'
+        };
+        return colorMap[category] || 'border-gray-300';
+    }
+
+
+    // --- Filtering and Rendering Logic ---
+
+    function renderStudentCard(student) {
+        // Stringify and escape for safe passing into the onclick HTML attribute
+        const studentJson = JSON.stringify(student).replace(/'/g, '&#39;');
+
+        const initials = student.studentName.split(' ')
+                                            .map(n => n[0])
+                                            .join('')
+                                            .substring(0, 3)
+                                            .toUpperCase();
+        
+        const textPlaceholderUrl = `https://placehold.co/150x150/0F172A/FFFFFF?text=${initials}`;
+        
+        // Use the defined constant for the default image path if no custom URL is provided
+        const displayImageUrl = student.imageUrl || DEFAULT_STUDENT_IMAGE_PATH;
+
+        // Get the category of the newest achievement for the card's visual indicator
+        const newestCategory = student.achievements[0]?.category || 'Academic'; 
+        const categoryColorClass = getCategoryColorClass(newestCategory);
+
+
+        return `
+            <div class="achievement-card shadow-lg hover:shadow-xl ${categoryColorClass}" onclick="openStudentDetails('${studentJson}')">
+                <!-- Student Image Area -->
+                <div class="relative bg-gray-100 h-40 flex items-center justify-center">
+                    <img src="${displayImageUrl}" alt="${student.studentName} profile"
+                         class="h-full w-full object-cover"
+                         onerror="this.onerror=null; this.src='${textPlaceholderUrl.replace(/'/g, '\\\'')}';"
+                    >
+                    <!-- Achievement Count Badge -->
+                    <span class="absolute top-2 right-2 inline-flex items-center justify-center px-3 py-1 text-xs font-bold leading-none text-white bg-indigo-600 rounded-full shadow-lg">
+                        ${student.achievements.length}
+                    </span>
+                </div>
+
+                <!-- Student Info Area -->
+                <div class="p-3 text-center bg-gray-50 flex-grow border-t border-gray-200">
+                    <p class="text-sm font-bold text-gray-900 truncate">${student.studentName}</p>
+                    <span class="text-xs font-semibold text-indigo-600">Grade ${student.grade}</span>
+                </div>
+            </div>
+        `;
+    }
+
+    function applyFiltersAndRender() {
+        const selectedCategory = categoryFilter.value; 
+
+        const categoryFilteredAchievements = allAchievements.filter(ach => {
+            // If filtering by category, also ensure the *most recent* achievement matches the filter for the main profile card to appear
+            return selectedCategory === 'All' || ach.category === selectedCategory;
+        });
+
+        const filteredStudents = groupAchievementsByStudent(categoryFilteredAchievements);
+
+        // --- Update Header Summary and Counter ---
+        const totalCount = allAchievements.length;
+        const latestAchievement = allAchievements[0];
+
+        let summaryHtml = `<div class="font-bold text-base text-white">${totalCount} Student Achievements Recorded</div>`;
+
+        if (latestAchievement) {
+            summaryHtml += `<div class="text-sm text-gray-300 italic">Latest Submission: ${latestAchievement.title} (${latestAchievement.studentName}, Grade ${latestAchievement.grade})</div>`;
+        } else {
+            summaryHtml += `<div class="text-sm text-gray-300 italic">No records found. Use the button to start recording!</div>`;
+        }
+        achievementSummary.innerHTML = summaryHtml;
+        // --- END Update Header Summary and Counter ---
+
+
+        achievementsGrid.innerHTML = filteredStudents.map(renderStudentCard).join('');
+
+        if (filteredStudents.length === 0 && allAchievements.length > 0) {
+            emptyState.querySelector('p:first-child').textContent = "No student profiles found matching the selected category filter.";
+            emptyState.classList.remove('hidden');
+        } else if (allAchievements.length === 0) {
+             emptyState.querySelector('p:first-child').textContent = "No student achievements have been recorded yet.";
+             emptyState.classList.remove('hidden');
+        } else {
+            emptyState.classList.add('hidden');
+        }
+    }
+
+    // MANDATORY: Add listener for the category filter change to trigger re-rendering
+    categoryFilter.addEventListener('change', applyFiltersAndRender); 
+
+    // --- Modal and Form Logic ---
+
+    window.closeModal = (modalId) => {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+    };
+
+    document.getElementById('addAchievementBtn').addEventListener('click', () => {
+        document.getElementById('achievementModal').classList.remove('hidden');
+        document.getElementById('achievementModal').classList.add('flex');
+        document.getElementById('modalMessage').classList.add('hidden');
+        document.getElementById('achievementForm').reset();
+    });
+
+    window.openStudentDetails = (studentJson) => {
+        try {
+            // Robust parsing and un-escaping of the JSON string
+            const student = JSON.parse(studentJson.replace(/&#39;/g, "'")); 
+            const detailModal = document.getElementById('studentDetailModal');
+            const detailName = document.getElementById('studentDetailName');
+            const detailContent = document.getElementById('studentDetailContent');
+            
+            const selectedCategory = categoryFilter.value; 
+
+            detailName.innerHTML = `${student.studentName} <span class="text-xl font-normal text-indigo-500">(Grade ${student.grade})</span>`;
+
+            // Filter the student's achievements based on the current global filter setting
+            const filteredAchievements = student.achievements.filter(ach => {
+                return selectedCategory === 'All' || ach.category === selectedCategory;
+            });
+
+            // Achievements array is already sorted by time (newest first)
+            const sortedAchievements = filteredAchievements; 
+
+            if (sortedAchievements.length === 0) {
+                 detailContent.innerHTML = `
+                    <div class="text-center py-10">
+                        <p class="text-lg text-gray-500">No achievements found in the <strong class="text-red-500">'${selectedCategory}'</strong> category for this student.</p>
+                        <p class="text-sm text-gray-400 mt-1">Try selecting 'All' in the filter dropdown to see all records.</p>
+                    </div>
+                 `;
+            } else {
+                const achievementListHTML = sortedAchievements.map(ach => {
+                    // Re-use the color mapping for the detail view
+                    const categoryColorClass = getCategoryColorClass(ach.category);
+                    const categoryBgColor = categoryColorClass.replace('border-', 'bg-');
+                    
+                    const dateString = ach.timestamp ? new Date(ach.timestamp.seconds * 1000).toLocaleDateString() : 'N/A';
+                    
+                    const achievementImageHtml = ach.imageUrl ? 
+                        `<img src="${ach.imageUrl}" class="mt-3 max-h-48 w-full object-contain rounded-lg border border-gray-200" alt="Achievement photo" onerror="this.style.display='none'; this.alt='Image not available';"/>` : '';
+
+                    return `
+                        <div class="border-b border-gray-200 py-4 last:border-b-0">
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold text-white ${categoryBgColor}">
+                                    ${ach.category}
+                                </span>
+                                <span class="text-xs text-gray-400">${dateString}</span>
+                            </div>
+                            <h4 class="text-xl font-extrabold text-gray-900">${ach.title}</h4>
+                            <p class="text-base text-gray-700 mt-2 whitespace-pre-wrap">${ach.description}</p>
+                            ${achievementImageHtml}
+                        </div>
+                    `;
+                }).join('');
+
+                detailContent.innerHTML = `
+                    <div class="text-sm text-gray-500 mb-4 font-semibold">
+                        Viewing ${filteredAchievements.length} achievements (Category: <span class="text-indigo-600">${selectedCategory}</span>)
+                    </div>
+                    <div class="h-96 overflow-y-auto pr-4">
+                        ${achievementListHTML}
+                    </div>
+                `;
+            }
+
+
+            detailModal.classList.remove('hidden');
+            detailModal.classList.add('flex');
+
+        } catch (e) {
+            console.error("Error opening student details:", e);
+        }
+    };
+
+    window.handleFormSubmit = async (event) => {
+        event.preventDefault();
+        if (!db) return;
+
+        const data = {
+            studentName: document.getElementById('studentName').value.trim(),
+            title: document.getElementById('title').value.trim(),
+            category: document.getElementById('category').value,
+            grade: parseInt(document.getElementById('grade').value, 10),
+            description: document.getElementById('description').value.trim(),
+            imageUrl: document.getElementById('imageUrl').value.trim() || null, 
+            timestamp: serverTimestamp(),
+            userId: currentUserId
+        };
+
+        const submitAchievementBtn = document.getElementById('submitAchievementBtn');
+        const modalMessage = document.getElementById('modalMessage');
+
+        submitAchievementBtn.textContent = 'Recording...';
+        submitAchievementBtn.disabled = true;
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-kda-app-id';
+        const collectionPath = `/artifacts/${appId}/public/data/kda_achievements`;
+
+        try {
+            const maxRetries = 3;
+            let currentRetry = 0;
+
+            const tryAddDoc = async () => {
+                await addDoc(collection(db, collectionPath), data);
+            };
+
+            const runWithBackoff = async (fn, maxAttempts) => {
+                while (currentRetry < maxAttempts) {
+                    try {
+                        await fn();
+                        return;
+                    } catch (error) {
+                        currentRetry++;
+                        if (currentRetry >= maxAttempts) throw error;
+
+                        const delay = Math.pow(2, currentRetry) * 1000 + Math.random() * 1000;
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                    }
+                }
+            };
+
+            await runWithBackoff(tryAddDoc, maxRetries);
+
+            modalMessage.textContent = 'Achievement record successful.';
+            modalMessage.className = 'mt-4 text-center text-sm text-green-600';
+            modalMessage.classList.remove('hidden');
+            document.getElementById('achievementForm').reset();
+
+            setTimeout(() => closeModal('achievementModal'), 2000);
+
+        } catch (e) {
+            console.error("Error adding document: ", e);
+            modalMessage.textContent = 'Failed to record achievement. See console for details.';
+            modalMessage.className = 'mt-4 text-center text-sm text-red-600';
+            modalMessage.classList.remove('hidden');
+        } finally {
+            submitAchievementBtn.textContent = 'Record Achievement';
+            submitAchievementBtn.disabled = false;
+        }
+    };
+
+    setupFirebase();
+
+</script>
+
+</body>
+</html>

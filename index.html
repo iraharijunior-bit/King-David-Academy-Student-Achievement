@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KDA Student Achievement Platform</title>
+    <style>
+        /* Change all green titles to sky blue */
+        .text-kda-secondary {
+            color: #38bdf8 !important; /* Tailwind sky-400 */
+        }
+    </style>
+    <style>
+        /* Make all cards blue for News & Updates, Achievements, Profiles, and Gallery */
+        .achievement-card,
+        .profile-card,
+        #news-updates-page .bg-white\/5,
+        #news-updates-page .bg-white\/5 *,
+        #news-updates-page .shadow-xl,
+        #news-updates-page .shadow-2xl {
+            background: rgba(30, 64, 175, 0.85) !important; /* blue-800 with opacity */
+            color: #fff !important;
+        }
+        #news-updates-page h3,
+        #news-updates-page h4 {
+            color: #93c5fd !important; /* light blue for headings */
+        }
+    </style>
+    <style>
+        .kda-blue-title {
+            color: #1a74b9 !important;
+        }
+    </style>
+    <style>
+        .kda-blue {
+            color: #1a74b9 !important;
+        }
+    </style>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Set king back.jpg as the background and apply blur */
+        body {
+            background-image: url('image/king back.jpg');
+            background-repeat: no-repeat;
+            background-position: center center;
+            background-attachment: fixed;
+            background-size: cover;
+            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+        }
+        /* Overlay for blur effect */
+        .background-pattern::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            background: inherit;
+            filter: blur(8px);
+            pointer-events: none;
+        }
+        .background-pattern {
+            position: relative;
+        }
+        .achievement-card, .profile-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            backdrop-filter: blur(5px);
+            background: rgba(59, 130, 246, 0.25); /* blue-500 with opacity */
+        }
+        .achievement-card:hover, .profile-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'kda-primary': '#4F46E5',
+                        'kda-secondary': '#10B981',
+                        'kda-dark': '#0d1226',
+                        'sky-blue': '#38bdf8'
+                    }
+                }
+            }
+        }
+        let currentPage = 'Achievement Page';
+        function renderPage() {
+            const achievementPage = document.getElementById('achievement-page');
+            const profilesPage = document.getElementById('profiles-page');
+            const galleryPage = document.getElementById('gallery-page');
+            const newsUpdatesPage = document.getElementById('news-updates-page');
+            const navButtons = document.querySelectorAll('nav button');
+            if (achievementPage) achievementPage.classList.add('hidden');
+            if (profilesPage) profilesPage.classList.add('hidden');
+            if (galleryPage) galleryPage.classList.add('hidden');
+            if (newsUpdatesPage) newsUpdatesPage.classList.add('hidden');
+            navButtons.forEach(button => {
+                if (button.textContent.trim() === currentPage) {
+                    button.classList.replace('text-gray-300', 'text-kda-secondary');
+                    button.classList.add('font-bold');
+                } else {
+                    button.classList.replace('text-kda-secondary', 'text-gray-300');
+                    button.classList.remove('font-bold');
+                }
+            });
+            if (currentPage === 'Achievement Page' && achievementPage) {
+                achievementPage.classList.remove('hidden');
+            } else if (currentPage === 'Student Profiles' && profilesPage) {
+                profilesPage.classList.remove('hidden');
+            } else if (currentPage === 'Photo & Video Gallery' && galleryPage) {
+                galleryPage.classList.remove('hidden');
+            } else if (currentPage === 'News & Updates' && newsUpdatesPage) {
+                newsUpdatesPage.classList.remove('hidden');
+            }
+        }
+        function navigate(page) {
+            currentPage = page;
+            renderPage();
+            const messageBox = document.getElementById('messageBox');
+            messageBox.textContent = `Displaying: ${page}.`;
+            if (page === 'Admin Panel') {
+                messageBox.textContent = `You clicked: ${page}. This feature is a placeholder.`;
+            }
+            messageBox.classList.remove('hidden');
+            setTimeout(() => {
+                messageBox.classList.add('hidden');
+            }, 3000);
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+            renderPage();
+            document.getElementById('messageBox').textContent = 'Welcome to KDA Achieve!';
+            document.getElementById('messageBox').classList.remove('hidden');
+            setTimeout(() => {
+                document.getElementById('messageBox').classList.add('hidden');
+            }, 2000);
+        });
+    </script>
+</head>
+<body class="background-pattern text-white">
+
+    <!-- Message Box (Alert/Confirm replacement) -->
+    <div id="messageBox" class="hidden fixed top-4 right-4 bg-kda-secondary text-white p-3 rounded-lg shadow-xl z-50 transition-all duration-300">
+        <!-- Message will be inserted here -->
+    </div>
+
+    <!-- Navigation Header -->
+    <header class="bg-kda-dark/80 backdrop-blur-sm shadow-lg sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo/School Name -->
+                <div class="flex-shrink-0 text-2xl font-extrabold tracking-wider text-kda-secondary">
+                    KDA ACHIEVE
+                </div>
+
+                <!-- Main Navigation Links -->
+                <nav class="hidden md:flex space-x-4">
+                    <button onclick="navigate('Achievement Page')" class="text-gray-300 hover:text-kda-secondary px-3 py-2 rounded-md text-sm font-medium transition duration-150">Achievement Page</button>
+                    <button onclick="navigate('Student Profiles')" class="text-gray-300 hover:text-kda-secondary px-3 py-2 rounded-md text-sm font-medium transition duration-150">Student Profiles</button>
+                    <button onclick="navigate('Photo & Video Gallery')" class="text-gray-300 hover:text-kda-secondary px-3 py-2 rounded-md text-sm font-medium transition duration-150">Photo & Video Gallery</button>
+                    <button onclick="navigate('News & Updates')" class="text-gray-300 hover:text-kda-secondary px-3 py-2 rounded-md text-sm font-medium transition duration-150">News & Updates</button>
+                </nav>
+
+                <!-- Admin Button -->
+                <div class="flex items-center">
+                    <button onclick="navigate('Admin Panel')" class="bg-kda-primary hover:bg-indigo-600 text-white font-semibold py-1.5 px-4 rounded-full text-sm transition duration-150 shadow-md">
+                        Admin Panel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        
+        <!-- Hero Section (Common to both pages) -->
+        <div class="text-center mb-12 bg-white/10 p-8 rounded-xl shadow-2xl">
+            <h1 class="text-5xl font-extrabold text-kda-secondary sm:text-6xl mb-4">
+                Celebrate KDA Excellence
+            </h1>
+            <p class="text-xl text-gray-200 max-w-3xl mx-auto">
+                The central platform for recognizing and sharing the hard work and success of our incredible students.
+            </p>
+        </div>
+
+
+        <!-- 1. ACHIEVEMENT PAGE CONTENT (Original Section) -->
+        <div id="achievement-page">
+            <h2 class="text-3xl font-bold text-white mb-8 border-b-2 border-kda-primary pb-2">Latest Achievements</h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+
+                <!-- Card 1: Academic Success -->
+                <div class="achievement-card rounded-xl overflow-hidden shadow-2xl border border-gray-700/50">
+                    <!-- Image Placeholder (using 300x200 from previous card for consistency) -->
+                    <img src="image/musoni.jpg" alt="Student Photo - Academic Achievement" class="w-full h-48 object-cover">
+                    <div class="p-5">
+                        <span class="inline-block bg-kda-secondary text-kda-dark text-xs font-semibold px-3 py-1 rounded-full mb-3 uppercase">Academic</span>
+                        <h3 class="text-xl font-bold text-white mb-2">Top 1% National Science Olympiad</h3>
+                        <p class="text-gray-300 text-sm mb-4">
+                            **MUSONI Junior**, Grade 11, achieved a gold medal in the Physics category, setting a new KDA school record.
+                        </p>
+                        <button onclick="navigate('Student Profiles')" class="text-kda-secondary hover:text-kda-primary font-medium text-sm">View Profile & Story &rarr;</button>
+                    </div>
+                </div>
+
+                <!-- Card 2: Sports Success -->
+                <div class="achievement-card rounded-xl overflow-hidden shadow-2xl border border-gray-700/50">
+                    <!-- Image Placeholder -->
+                    <img src="image/brian1.jpg" alt="Student Photo - Sports Achievement" class="w-full h-48 object-cover">
+                    <div class="p-5">
+                        <span class="inline-block bg-pink-500 text-white text-xs font-semibold px-3 py-1 rounded-full mb-3 uppercase">Sports</span>
+                        <h3 class="text-xl font-bold text-white mb-2">Regional Cross Country Winner</h3>
+                        <p class="text-gray-300 text-sm mb-4">
+                            **N.Brian**, Grade 11,N. Brian is a skilled football player known for his outstanding performance and dedication on the field. His talent and hard work earned him the MVP (Most Valuable Player) award.
+                        </p>
+                        <button onclick="navigate('Student Profiles')" class="text-kda-secondary hover:text-kda-primary font-medium text-sm">View Profile & Story &rarr;</button>
+                    </div>
+                </div>
+
+                <!-- Card 3: Arts Success -->
+                <div class="achievement-card rounded-xl overflow-hidden shadow-2xl border border-gray-700/50">
+                    <!-- Image Placeholder -->
+                    <img src="image/mirreal2 (1).png" alt="Student Photo - Arts Achievement" class="w-full h-48 object-cover">
+                    <div class="p-5">
+                        <span class="inline-block bg-yellow-500 text-kda-dark text-xs font-semibold px-3 py-1 rounded-full mb-3 uppercase">Arts</span>
+                        <h3 class="text-xl font-bold text-white mb-2">"Young ARTIST" Art Prize</h3>
+                        <p class="text-gray-300 text-sm mb-4">
+                            ***MIR Junior** is an upcoming artist and award-winning talent from **King David Academy**, known for his songs **“Freestyle”** and **“Sinaloa.”**
+.
+                        </p>
+                        <button onclick="navigate('Student Profiles')" class="text-kda-secondary hover:text-kda-primary font-medium text-sm">View Profile & Story &rarr;</button>
+                    </div>
+                </div>
+
+                <!-- Card 4: Leadership Success -->
+                <div class="achievement-card rounded-xl overflow-hidden shadow-2xl border border-gray-700/50">
+                    <!-- Image Placeholder -->
+                    <img src="image/ethan.jpg" alt="Student Photo - Leadership Achievement" class="w-full h-48 object-cover">
+                    <div class="p-5">
+                        <span class="inline-block bg-kda-primary text-white text-xs font-semibold px-3 py-1 rounded-full mb-3 uppercase">Leadership</span>
+                        <h3 class="text-xl font-bold text-white mb-2">Community Service Champion</h3>
+                        <p class="text-gray-300 text-sm mb-4">
+                            **ETHAN**, Grade 11, Ethan was a prefect at **King David Academy**. He was a good leader who helped teachers and students, kept discipline, and set a good example. Because of his hard work and good behavior, he was **given an award** for being an excellent prefect.
+
+                        </p>
+                        <button onclick="navigate('Student Profiles')" class="text-kda-secondary hover:text-kda-primary font-medium text-sm">View Profile & Story &rarr;</button>
+                    </div>
+                </div>
+
+                <!-- Card 5: Technology Success -->
+                <div class="achievement-card rounded-xl overflow-hidden shadow-2xl border border-gray-700/50">
+                    <!-- Image Placeholder -->
+                    <img src="image/nick1.jpg" alt="Student Photo - Technology Achievement" class="w-full h-48 object-cover">
+                    <div class="p-5">
+                        <span class="inline-block bg-blue-500 text-white text-xs font-semibold px-3 py-1 rounded-full mb-3 uppercase">Technology</span>
+                        <h3 class="text-xl font-bold text-white mb-2">First Place: National Technology Challenge</h3>
+                        <p class="text-gray-300 text-sm mb-4">
+                            <b>NICK RW.</b>
+                            As a hardworking and wanting to know every thing with tech i learned more which
+                            I also have enough but not many certificate with only A stars with a medal of FLL Championship,btec certificate,...
+                        </p>
+                        <button onclick="navigate('Student Profiles')" class="text-kda-secondary hover:text-kda-primary font-medium text-sm">View Profile & Story &rarr;</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- 2. STUDENT PROFILES CONTENT (New Section) -->
+        <div id="profiles-page" class="hidden">
+            <h2 class="text-3xl font-bold text-white mb-8 border-b-2 border-kda-primary pb-2">Featured Student Profiles</h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                
+                <!-- Profile Card 1 -->
+                <div class="profile-card rounded-xl overflow-hidden shadow-2xl border border-gray-700/50">
+                    <!-- Image Placeholder: 300x160 as requested -->
+                    <img src="image/nick2.jpg" alt="Student Photo" class="w-full h-40 object-cover">
+                    <div class="p-5">
+                        <h3 class="text-xl font-bold text-white mb-1">NICK</h3>
+                        <p class="text-gray-400 text-sm mb-3">Grade 11 | Class of 2026</p>
+                        <p class="text-gray-300 text-sm mb-4">
+                            **Key Achievements: Valedictorian Candidate, State Debate Champion, Peer Tutor Lead.
+                        </p>
+                        <button onclick="navigate('Alex Johnson Details')" class="text-kda-primary hover:text-kda-secondary font-medium text-sm">Read Full Bio &rarr;</button>
+                    </div>
+                </div>
+                
+                <!-- Profile Card 2 -->
+                <div class="profile-card rounded-xl overflow-hidden shadow-2xl border border-gray-700/50">
+                    <!-- Image Placeholder: 300x160 as requested -->
+                    <img src="image/jessy.jpg" alt="Student Photo" class="w-full h-40 object-cover">
+                    <div class="p-5">
+                        <h3 class="text-xl font-bold text-white mb-1">JESSY</h3>
+                        <p class="text-gray-400 text-sm mb-3">Grade 11| Aspiring Engineer</p>
+                        <p class="text-gray-300 text-sm mb-4">
+                            **Key Achievements: Winner of Junior Science Fair, Robotics Team Captain, Volunteer at Local Library.
+                        </p>
+                        <button onclick="navigate('jessy Details')" class="text-kda-primary hover:text-kda-secondary font-medium text-sm">Read Full Bio &rarr;</button>
+                    </div>
+                </div>
+
+                <!-- Profile Card 3 -->
+                <div class="profile-card rounded-xl overflow-hidden shadow-2xl border border-gray-700/50">
+                    <!-- Image Placeholder: 300x160 as requested -->
+                    <img src="image/eric.jpg" alt="Student Photo" class="w-full h-40 object-cover">
+                    <div class="p-5">
+                        <h3 class="text-xl font-bold text-white mb-1">Eric</h3>
+                        <p class="text-gray-400 text-sm mb-3">Grade 11 | Star Athlete</p>
+                        <p class="text-gray-300 text-sm mb-4">
+                            **Key Achievements:** School Record Holder (200m), Varsity Basketball MVP, Mentorship Program Leader.
+                        </p>
+                        <button onclick="navigate('Chen Wei Details')" class="text-kda-primary hover:text-kda-secondary font-medium text-sm">Read Full Bio &rarr;</button>
+                    </div>
+                </div>
+
+                <!-- Profile Card 4 -->
+                <div class="profile-card rounded-xl overflow-hidden shadow-2xl border border-gray-700/50">
+                    <!-- Image Placeholder: 300x160 as requested -->
+                    <img src="image/emy.jpg" alt="Student Photo" class="w-full h-40 object-cover">
+                    <div class="p-5">
+                        <h3 class="text-xl font-bold text-white mb-1">Emmy</h3>
+                        <p class="text-gray-400 text-sm mb-3">Grade 11 | Creative Arts</p>
+                        <p class="text-gray-300 text-sm mb-4">
+                            **Key Achievements:** Lead role in School Musical, Editor of the KDA Literary Magazine, Poetry Slam Finalist.
+                        </p>
+                        <button onclick="navigate('emmy Details')" class="text-kda-primary hover:text-kda-secondary font-medium text-sm">Read Full Bio &rarr;</button>
+                    </div>
+                </div>
+
+                <!-- Profile Card 5 -->
+                <div class="profile-card rounded-xl overflow-hidden shadow-2xl border border-gray-700/50">
+                    <!-- Image Placeholder: 300x160 as requested -->
+                    <img src="image/mir12.jpg" alt="Student Photo" class="w-full h-40 object-cover">
+                    <div class="p-5">
+                        <h3 class="text-xl font-bold text-white mb-1"><strong>MIR Junior</strong></h3>
+                        <p class="text-gray-400 text-sm mb-3">Grade 11 | artist</p>
+                        <p class="text-gray-300 text-sm mb-4">
+                            **Key Achievement**MIR Junior is an upcoming artist and award-winning talent from King David Academy, known for his songs “Freestyle” and “Sinaloa.”.
+                        </p>
+                        <button onclick="navigate('Omar Hassan Details')" class="text-kda-primary hover:text-kda-secondary font-medium text-sm">Read Full Bio &rarr;</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- 3. PHOTO & VIDEO GALLERY CONTENT (New Section) -->
+        <div id="gallery-page" class="hidden">
+            <h2 class="text-3xl font-bold text-white mb-8 border-b-2 border-kda-secondary pb-2">Photo & Video Gallery</h2>
+            
+            <h3 class="text-2xl font-semibold text-white mb-6">Featured Videos</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+                
+                <!-- Video Card 1 -->
+                <div class="achievement-card rounded-xl overflow-hidden shadow-2xl border border-gray-700/50 p-4">
+                    <video width="100%" height="auto" controls class="rounded-lg mb-3">
+                        <!-- Placeholder video source -->
+                        <source src="image/grad1.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                    <h3 class="text-xl font-bold text-white">TRADITIONAL DANCE</h3>
+                    <p class="text-gray-400">TRADITIONAL</p>
+                </div>
+
+                <!-- Video Card 2 -->
+                <div class="achievement-card rounded-xl overflow-hidden shadow-2xl border border-gray-700/50 p-4">
+                    <video width="100%" height="auto" controls class="rounded-lg mb-3">
+                        <!-- Placeholder video source -->
+                        <source src="image/drad2.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                    <h3 class="text-xl font-bold text-white">GRADUATION</h3>
+                    <p class="text-gray-400">Graduation cermony 2025</p>
+                </div>
+            </div>
+
+            <h3 class="text-2xl font-semibold text-white mb-6 border-t pt-8 border-gray-700/50">Student Photos</h3>
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+
+                <!-- Photo Card 1 -->
+                <div class="profile-card rounded-xl overflow-hidden shadow-xl">
+                    <img src="image/dradreal.jpg" alt="Student Photo - Graduation" class="w-full h-40 object-cover">
+                    <div class="p-3 bg-white/5">
+                        <p class="text-xs text-gray-400">Graduation Day 2025</p>
+                    </div>
+                </div>
+
+                <!-- Photo Card 2 -->
+                <div class="profile-card rounded-xl overflow-hidden shadow-xl">
+                    <img src="image/art.jpg" alt="Student Photo - Art Class" class="w-full h-40 object-cover">
+                    <div class="p-3 bg-white/5">
+                        <p class="text-xs text-gray-400">Art Class Exhibition</p>
+                    </div>
+                </div>
+
+                <!-- Photo Card 3 -->
+                <div class="profile-card rounded-xl overflow-hidden shadow-xl">
+                    <img src="image/robotics.jpg" alt="Student Photo - Robotics Team" class="w-full h-40 object-cover">
+                    <div class="p-3 bg-white/5">
+                        <p class="text-xs text-gray-400">Robotics Team Competition</p>
+                    </div>
+                </div>
+
+                <!-- Photo Card 4 -->
+                <div class="profile-card rounded-xl overflow-hidden shadow-xl">
+                    <img src="image/community.jpg" alt="Student Photo - Volunteer Work" class="w-full h-40 object-cover">
+                    <div class="p-3 bg-white/5">
+                        <p class="text-xs text-gray-400">Community Clean-up Drive</p>
+                    </div>
+                </div>
+
+                <!-- Photo Card 5 -->
+                <div class="profile-card rounded-xl overflow-hidden shadow-xl">
+                    <img src="image/nyanza.jpg" alt="Student Photo - Field Trip" class="w-full h-40 object-cover">
+                    <div class="p-3 bg-white/5">
+                        <p class="text-xs text-gray-400">History Field Trip</p>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+
+        <!-- 4. NEWS & UPDATES CONTENT (New Section) -->
+        <div id="news-updates-page" class="hidden">
+            <h2 class="text-3xl font-bold text-white mb-8 border-b-2 border-kda-primary pb-2">School News & Important Updates</h2>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                <!-- Main News Article -->
+                <div class="lg:col-span-2 bg-white/5 p-6 rounded-xl shadow-2xl border border-gray-700/50">
+                    <span class="inline-block bg-kda-primary text-white text-xs font-semibold px-3 py-1 rounded-full mb-3 uppercase">Headline News</span>
+                    <h3 class="text-3xl font-bold text-kda-secondary mb-3">KDA Wins 'blue School' Award for Third Consecutive Year!</h3>
+                    <p class="text-gray-300 text-lg mb-4">
+                        The KDA Environmental Club, led by students from Grade 11, has successfully secured the prestigious **'Blue School Certification'** for 2025. Their initiatives, including the campus-wide recycling program and the new solar panel installation project, were highlighted by the judging panel. Congratulations to all students and staff involved in promoting sustainability!
+                    </p>
+                    <p class="text-gray-500 text-sm">Posted: October 10, 2024</p>
+                </div>
+
+                <!-- Side Updates Column -->
+                <div class="lg:col-span-1 space-y-6">
+                    
+                    <!-- Update 1 -->
+                    <div class="bg-white/5 p-4 rounded-xl shadow-xl border border-gray-700/50">
+                        <h4 class="text-xl font-semibold text-white mb-2">Parent-Teacher Conference Schedule</h4>
+                        <p class="text-gray-400 text-sm">
+                            Upcoming Parent-Teacher conferences are scheduled for **November 5th and 6th**. Please check your email for the link to book your preferred time slot.
+                        </p>
+                        <p class="text-kda-secondary text-xs mt-2">Action Required</p>
+                    </div>
+
+                    <!-- Update 2 -->
+                    <div class="bg-white/5 p-4 rounded-xl shadow-xl border border-gray-700/50">
+                        <h4 class="text-xl font-semibold text-white mb-2">School Musical Tryouts Announced</h4>
+                        <p class="text-gray-400 text-sm">
+                            Tryouts for the Spring Musical, **"Into the Woods,"** will be held next Tuesday in the auditorium. All interested students must sign up by the end of the week!
+                        </p>
+                        <p class="text-gray-500 text-xs mt-2">Posted: October 1, 2025</p>
+                    </div>
+
+                    <!-- Update 3 -->
+                    <div class="bg-white/5 p-4 rounded-xl shadow-xl border border-gray-700/50">
+                        <h4 class="text-xl font-semibold text-white mb-2">Winter Break Dates</h4>
+                        <p class="text-gray-400 text-sm">
+                            A reminder that Winter Break begins on **December 20th** and classes will resume on **January 6th**.
+                        </p>
+                        <p class="text-gray-500 text-xs mt-2">Posted: September 25, 2025</p>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-12 py-8 bg-kda-dark/80 backdrop-blur-sm text-center text-gray-400 border-t border-gray-700/50">
+        <p>&copy; 2025 KING DAVID ACADEMY School. All Achievements Reserved. Powered by MIR COLLECTION.</p>
+    </footer>
+
+</body>
+</html>
